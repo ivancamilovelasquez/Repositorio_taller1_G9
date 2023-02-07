@@ -12,7 +12,7 @@
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse)
+p_load(rvest, tidyverse, ggplot2, robotstxt)
 
 # - 1. Importar Datos
 
@@ -31,6 +31,9 @@ for (j in 1:2) {
 # - Edad (Sólo mayores de 18 años)
 
 GEIH <- GEIH[GEIH$age >= 18, ]
+
+# - Renombrar variable
+
 GEIH <- rename(GEIH, c("edad" = "age"))
 GEIH$edad_2 <- GEIH$edad^2
 

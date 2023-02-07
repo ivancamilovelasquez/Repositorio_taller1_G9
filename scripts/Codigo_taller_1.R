@@ -52,3 +52,41 @@ GEIH$mujer[GEIH$sex == 1] <- 0
 GEIH$estudiante <- ifelse(GEIH$p6240 == 3, 1, 0)
 GEIH$estudiante[GEIH$p6240 != 3] <- 0
 GEIH$estudiante[GEIH$p6240 == "."] <- NA
+
+# - Busca trabajo
+
+GEIH$busca_trabajo <- ifelse(GEIH$p6240 == 2, 1, 0)
+GEIH$busca_trabajo[GEIH$p6240 != 2] <- 0
+GEIH$busca_trabajo[GEIH$p6240 == "."] <- NA
+
+# - Amo(a) de casa
+
+GEIH$amo_casa <- ifelse(GEIH$p6240 == 4, 1, 0)
+GEIH$amo_casa[GEIH$p6240 != 4] <- 0
+GEIH$amo_casa[GEIH$p6240 == "."] <- NA
+
+# - Hijos en el hogar
+
+GEIH$hijos_hogar <- ifelse(GEIH$p6050 == 3, 1, 0)
+GEIH$hijos_hogar[GEIH$p6050 != 3] <- 0
+GEIH$hijos_hogar[GEIH$p6050 == "."] <- NA
+
+# - Primaria
+
+GEIH$primaria <- ifelse(GEIH$p6210 == 1, 1, 0)
+GEIH$primaria[GEIH$p6210 == "."] <- NA
+
+# - Secundaria
+
+GEIH$secundaria <- ifelse(GEIH$p6210 == 4, 1, 0)
+GEIH$secundaria[GEIH$p6210 == "."] <- NA
+
+# - Media
+
+GEIH$media <- ifelse(GEIH$p6210 == 5, 1, 0)
+GEIH$media[GEIH$p6210 == "."] <- NA
+
+# - Superior
+
+GEIH$superior <- ifelse(GEIH$p6210 == 6, 1, 0)
+GEIH$superior[GEIH$p6210 == "."] <- NA

@@ -11,6 +11,11 @@
 #
 #  Fecha: 06/02/2023 
 
+# - Limpiar el environment y el panel
+
+rm(list = ls())
+cat("\014")
+
 # - Librerias
 
 library(pacman)
@@ -149,3 +154,18 @@ GEIH <- subset(GEIH, select = c("directorio", "secuencia_p", "orden",
                                 "estrato", "cabecera", "horas_trab_usual",
                                 "oficio", "log_salario_m", "informal",
                                 "ciudad"))
+
+# -  2.3 Limpieza de valores faltantes 
+
+# Se eliminan las observaciones que tienen valores faltantes en el
+# salario nominal mensual
+
+GEIH <- GEIH %>% filter(!is.na(salario_mensual))
+
+# -  2.4 Tratamiento de valores atípicos
+
+# Hablar de el tratamiento con winsorize
+
+GEIH$salario_mensual <- psych::winsor(GEIH$salario_mensual, trim = 0.01)
+GEIH$log_salario_m <- log(GEIH$salario_mensual)
+

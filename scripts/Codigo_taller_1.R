@@ -6,6 +6,8 @@
 
 #   Autores: - Jorge Rodríguez                                                  
 #            - Iván Velázquez  
+#            - Santiago Gonzalez
+#            - Maria Jose Colmenares
 #
 #  Fecha: 06/02/2023 
 
@@ -18,7 +20,7 @@ p_load(rvest, tidyverse)
 
 GEIH <-  data.frame()
 
-for (j in 1:2) {
+for (j in 1:10) {
   url <- "https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_"
   pagina <- paste0(url,j,".html")
   Data_GitHub <- read_html(pagina)
@@ -90,3 +92,57 @@ GEIH$media[GEIH$p6210 == "."] <- NA
 
 GEIH$superior <- ifelse(GEIH$p6210 == 6, 1, 0)
 GEIH$superior[GEIH$p6210 == "."] <- NA
+
+# - Superior
+
+GEIH$superior <- ifelse(GEIH$p6210 == 6, 1, 0)
+GEIH$superior[GEIH$p6210 == "."] <- NA
+
+# - Salario mensual
+
+GEIH <- rename(GEIH, c("salario_mensual" = "y_ingLab_m"))
+
+# - Mantener Ocupados
+
+GEIH <- GEIH[GEIH$oc == 1, ]
+
+# - Ingreso Total
+
+GEIH <- rename(GEIH, c("ingreso_total" = "ingtot"))
+
+# - Experiencia trabajo actual
+
+GEIH <- rename(GEIH, c("exp_trab_actual" = "p6426"))
+
+# - Estrato
+
+GEIH <- rename(GEIH, c("estrato" = "estrato1"))
+
+# - Cabecera
+
+GEIH$cabecera <- ifelse(GEIH$clase == 1, 1, 0)
+
+# - Horas de trabajo a la semana
+
+GEIH <- rename(GEIH, c("horas_trab_usual" = "hoursWorkUsual"))
+
+# - Logaritmo del Salario
+
+GEIH$log_salario_m <- log(GEIH$salario_mensual)
+
+# - Ciudad
+
+GEIH <- rename(GEIH, c("ciudad" = "dominio"))
+
+# -  2.2 Mantener variables
+
+
+GEIH <- subset(GEIH, select = c("directorio", "secuencia_p", "orden",
+                                "mes", "edad", "edad_2", "mujer", 
+                                "estudiante", "busca_trabajo", "amo_casa",
+                                "hijos_hogar", "primaria", "secundaria",
+                                "media", "superior", "salario_mensual",
+                                "ingreso_total", "exp_trab_actual",
+                                "estrato", "cabecera", "horas_trab_usual",
+                                "oficio", "log_salario_m", "informal",
+                                "ciudad"))

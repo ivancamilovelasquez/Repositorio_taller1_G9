@@ -53,4 +53,6 @@ ggplot(coefs)
   labs(x = 'Coeffienient estimate') +
   theme_bw() 
 
-
+#Peak age
+ggplot() + 
+  geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH)))

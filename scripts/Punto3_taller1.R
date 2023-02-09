@@ -56,3 +56,6 @@ ggplot(coefs)
 #Peak age
 ggplot() + 
   geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH)))
+
+GEIH$prediccion <- predict(reg, newdata = GEIH)
+GEIH[which.max(GEIH$prediccion),][5]

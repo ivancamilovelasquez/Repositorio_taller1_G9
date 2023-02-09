@@ -10,6 +10,10 @@
 #            - Maria Jose Colmenares
 #
 #  Fecha: 06/02/2023 
+#
+#  Objetivo del script: Este código hace la primera parte del taller, cargar los 
+#  datos, limpiarlos y hacer las graficas descriptivas de la base final.
+#_____________________________________________________________________________#
 
 # - Limpiar el environment y el panel
 

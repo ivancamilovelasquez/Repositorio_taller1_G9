@@ -46,11 +46,10 @@ GEIH <- GEIH[GEIH$age >= 18, ]
 # - Renombrar variable
 
 GEIH <- rename(GEIH, c("edad" = "age"))
-GEIH$edad_2 <- GEIH$edad^2
 
 # - Años de educación
 
-GEIH <- rename(GEIH, c("edad" = "age"))
+GEIH$edad_2 <- GEIH$edad^2
 
 # - Experiencia potencial
 

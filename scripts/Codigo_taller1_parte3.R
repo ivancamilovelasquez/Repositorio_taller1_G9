@@ -15,11 +15,11 @@ p_load(stargazer,boot)
 
 # Punto 3: Age-wage profile
 
-#Estimación de los betas
+# Estimación de los betas
 reg<- lm(log_salario_m~edad + edad_2,   data = GEIH)
 stargazer(reg,type="text") #Regression table
 
-#Bootstrap para los obtener errores estándar
+# Bootstrap para los obtener errores estándar
 eta_fn<-function(data,index){
   coef(lm(log_salario_m~edad + edad_2, data = GEIH, subset = index)) 
 }
@@ -30,7 +30,7 @@ boot(GEIH, eta_fn, R = 1000)
 
 lm_summary <- summary(reg)$coefficients
 
-#Construir los intervalos de confianza
+# Construir los intervalos de confianza
 coefs = data.frame(
   Features = rownames(lm_summary),
   Estimate = lm_summary[,'Estimate'],
@@ -43,7 +43,7 @@ coefs$upper = coefs$Estimate + qnorm(alpha/2) * coefs$std_error
 coefs = coefs[!(coefs$Features == '(Intercept)'),]
 
 
-#Plot de los Intervalos de confianza
+# Plot de los Intervalos de confianza
 ggplot(coefs) 
   geom_vline(xintercept = 0, linetype = 4) + #adds a vertical line at zero
   geom_point(aes(x = Estimate, y = Features)) + #point estimate
@@ -53,7 +53,7 @@ ggplot(coefs)
   labs(x = 'Coeffienient estimate') +
   theme_bw() 
 
-#Peak age
+# Peak age
 ggplot() + 
   geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH)))
 

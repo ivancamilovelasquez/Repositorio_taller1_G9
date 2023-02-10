@@ -15,10 +15,6 @@
 #  las brechas salarias con respecto al género. 
 #_____________________________________________________________________________#
 
-# - Limpiar espacio de trabajo
-
-rm(list = ls())
-
 # - Librerias y paquetes 
 
 require(pacman)

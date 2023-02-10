@@ -14,11 +14,6 @@
 #  Objetivo del script: Este código corresponde al punto 5
 #_____________________________________________________________________________#
 
-# - Limpiar el environment y el panel
-
-rm(list = ls())
-cat("\014")
-
 # - Librerias
 
 library(pacman)
@@ -35,14 +30,18 @@ set.seed(10101)
 GEIH$id <- 1:nrow(GEIH)
 
 
-#Dividir la base en 70%, 30%
+# Dividir la base en 70% (train), 30% (test)
 
 train <- GEIH %>% dplyr::sample_frac(0.70)
 test  <- dplyr::anti_join(GEIH, train, by = 'id')
 
+# - Punto 5B
 
+# Modelos punto 3
+mod1_train <- lm(log_salario_m~edad + edad_2, data = train)
 
-reg<- lm(log_salario_m~edad + edad_2,   data = GEIH)
-mod1 <- lm(GEIH$log_salario_m~GEIH$mujer)
-mod2 <- lm(GEIH$log_salario_m~GEIH$mujer + GEIH$superior + GEIH$horas_trab_usual + GEIH$edad + GEIH$edad_2 + GEIH$informal)
+# Modelos punto 4
+mod2_train <- lm(log_salario_m~ mujer , data = train )
+mod3_train <- lm(log_salario_m~ mujer + superior + horas_trab_usual + edad 
+                 + edad_2 + informal, data = train)
 

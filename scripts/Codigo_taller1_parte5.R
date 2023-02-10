@@ -17,7 +17,7 @@
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse, ggplot2, robotstxt, psych)
+p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer)
 
 # - Fijar el Seed 
 set.seed(10101)
@@ -42,6 +42,21 @@ mod1_train <- lm(log_salario_m~edad + edad_2, data = train)
 
 # Modelos punto 4
 mod2_train <- lm(log_salario_m~ mujer , data = train )
+
 mod3_train <- lm(log_salario_m~ mujer + superior + horas_trab_usual + edad 
                  + edad_2 + informal, data = train)
+
+# Nuevos modelos 
+
+mod2_train <- lm(log_salario_m~ mujer , data = train )
+
+mod3_train <- lm(log_salario_m~ mujer + superior + secundaria + horas_trab_usual 
+                 + exp_trab_actual + amo_casa + edad + edad_2 + informal, data = train)
+
+mod4_train <- lm(log_salario_m~ mujer + superior + secundaria + horas_trab_usual 
+                 + exp_trab_actual + amo_casa + edad + edad_2 + + oficio 
+                 + informal, data = train)
+
+stargazer(mod1_train,mod2_train,mod3_train,mod4_train, type = "text")
+
 

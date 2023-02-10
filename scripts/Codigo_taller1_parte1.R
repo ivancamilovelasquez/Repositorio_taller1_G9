@@ -172,3 +172,5 @@ GEIH <- GEIH %>% filter(!is.na(salario_mensual))
 GEIH$salario_mensual <- psych::winsor(GEIH$salario_mensual, trim = 0.01)
 GEIH$log_salario_m <- log(GEIH$salario_mensual)
 
+
+

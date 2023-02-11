@@ -103,8 +103,8 @@ test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
 
 par(mfrow=c(1,2))
-plot(density(test_subset$log_salario_m), main="Distribución de valores verdaderos", col="red", xlab="Valor")
-plot(density(test_subset$mejormodelo), main="Distribución de valores predichos", col="blue", xlab="Valor")
+plot(density(test_subset$log_salario_m), main="Distribución xxx verdaderos", col="red", xlab="Valor")
+plot(density(test_subset$mejormodelo), main="Distribución xxx predichos", col="blue", xlab="Valor")
 
 
 

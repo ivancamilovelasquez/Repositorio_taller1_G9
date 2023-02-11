@@ -194,3 +194,5 @@ MSE2_k_test <- lapply(1:K, function(ii) mean((splt_test[[ii]]$log_salario_m - sp
 MSE2_k_test
 mean(unlist(MSE2_k_test))
 
+
+# 5 D LOOCV

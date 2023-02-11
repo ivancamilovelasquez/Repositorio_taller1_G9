@@ -59,3 +59,4 @@ ggplot() +
 
 GEIH$prediccion <- predict(reg, newdata = GEIH)
 GEIH[which.max(GEIH$prediccion),][5]
+

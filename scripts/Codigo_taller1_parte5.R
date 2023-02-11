@@ -17,7 +17,7 @@
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, ggthemes)
+p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, ggthemes, data.table)
 
 # - Fijar el Seed 
 set.seed(10101)
@@ -155,4 +155,42 @@ top_30 <- head(test_subset_ordenado, 30)
 top_30$variable_relativa_diferencia <- exp(top_30$diferencia_absoluta)
 
 
+# 5 B lo hacemos con K folds. Dividimos los datos en 70% train 30% test 
+# como inicialmente lo hicimos. Hacemos k folds en el 70% dejando siempre 
+# un k como testeo. Luego el mejor modelo lo ponemos a predecir sobre el 
+# 30% inicial que se dejo para testo y mirar que tan bueno es el modelo. 
+
+set.seed(10101)
+K <- 5
+index <- split(1:6920, 1: K)
+splt <- lapply(1:K, function(ind) train[index[[ind]], ])
+head(splt[1])
+m1 <- lapply(1:K, function(ii) lm(log_salario_m~ mujer + superior + horas_trab_usual + edad 
+                                  + edad_2 + informal + estrato + cabecera, 
+                                  data = rbindlist(splt[-ii])))
+#Predicción 
+p1 <- lapply(1:K, function(ii) data.frame(predict(m1[[ii]], newdata = rbindlist(splt[ii]))))
+# A los SPLT poner la variable yhat
+for (i in 1:K) {
+  colnames(p1[[i]])<-"yhat" 
+  splt[[i]] <- cbind(splt[[i]], p1[[i]])
+  
+}
+MSE2_k <- lapply(1:K, function(ii) mean((splt[[ii]]$log_salario_m - splt[[ii]]$yhat)^2))
+MSE2_k
+mean(unlist(MSE2_k))
+
+
+K <- 5
+index_test <- split(1:592, 1: K)
+splt_test <- lapply(1:K, function(ind) test[index_test[[ind]], ])
+p1_test <- lapply(1:K, function(ii) data.frame(predict(m1[[ii]], newdata = rbindlist(splt_test[ii]))))
+for (i in 1:K) {
+  colnames(p1_test[[i]])<-"yhat" 
+  splt_test[[i]] <- cbind(splt_test[[i]], p1_test[[i]])
+  
+}
+MSE2_k_test <- lapply(1:K, function(ii) mean((splt_test[[ii]]$log_salario_m - splt_test[[ii]]$yhat)^2))
+MSE2_k_test
+mean(unlist(MSE2_k_test))
 

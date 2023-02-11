@@ -17,7 +17,7 @@
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer)
+p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, ggthemes)
 
 # - Fijar el Seed 
 set.seed(10101)
@@ -82,6 +82,17 @@ GEIH$exp_trab_actual_2 <- GEIH$exp_trab_actual^2
 #stargazer(mod0_p5, mod1_p5 , mod2_p5 , mod3_p5 , type = "text")
 #stargazer(mod4_p5, mod5_p5 , mod6_p5 , mod7_p5 , type = "text")       
           
+# Calcular el MSE de los train 
+
+MSE_mod_train <- numeric(5) 
+for (i in 1:5) {
+  modelo_t <- get(paste0("mod", i)) 
+  prediction_t <- predict(modelo_t,newdata = train)
+  train[[paste0("mod", i)]] <- prediction_t
+  MSE_mod_train[i] <- with(train, mean((log_salario_m-prediction_t)^2))
+}
+which.min(MSE_mod_train)
+
 
 #test$mod3 <- predict(mod3,newdata = test)
 #MSE_mod3  <- with(test,mean((log_salario_m-mod3)^2))
@@ -96,15 +107,52 @@ for (i in 1:5) {
 }
 which.min(MSE_mod)
 
+# Tabla de los MSE de los modelos 
+
+Modelo <- c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4", "Modelo 5")
+MSE_data_frame <- data.frame(Modelo, MSE_mod)
+t(MSE_data_frame)
+
 # Dado que el mejor modelo es el 5,  guardamos la predicción y el verdadero valor 
 
 test$mejormodelo <- predict(mod5 ,newdata = test)
 test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
 
-par(mfrow=c(1,2))
-plot(density(test_subset$log_salario_m), main="Distribución xxx verdaderos", col="red", xlab="Valor")
-plot(density(test_subset$mejormodelo), main="Distribución xxx predichos", col="blue", xlab="Valor")
+# Graficas:  valor verdadero y valor predicho, mejor modelo
+
+par(mfrow = c(1, 1))
+plot(density(test_subset$log_salario_m), main = "Distribución de los valores verdaderos y predichos", 
+     col = "red", xlab = "Valor", xlim = c(min(c(test_subset$log_salario_m, test_subset$mejormodelo))
+     , max(c(test_subset$log_salario_m, test_subset$mejormodelo)))) 
+  lines(density(test_subset$mejormodelo), col = "blue")
+  legend("topright", c("Valor Verdadero", "Valor Predicho"), lty = c(1, 1), col = c("red", "blue")) +
+  theme_economist() +
+  theme(legend.position = "topright")
+
+    
+ggplot(data.frame(valor = c(test_subset$log_salario_m, test_subset$mejormodelo)), 
+    aes(x = valor)) +
+    geom_density(aes(color = "Valor Verdadero"), size = 1) +
+    geom_density(data = data.frame(valor = test_subset$mejormodelo), 
+                 aes(color = "Valor Predicho"), size = 1) +
+    xlim(c(min(c(test_subset$log_salario_m, test_subset$mejormodelo)), 
+           max(c(test_subset$log_salario_m, test_subset$mejormodelo)))) +
+    xlab("Valor") +
+    ggtitle("Distribución de los valores verdaderos y predichos") +
+    scale_color_manual(name = "", values = c("Valor Verdadero" = "red", "Valor Predicho" = "blue")) +
+    theme_economist() +
+    theme(legend.position = "topright")
+
+# Diferencia entre el valor verdadero y el predicho en el mejor modelo
+
+test_subset$diferencia_absoluta <- abs(test_subset$log_salario_m - test_subset$mejormodelo)
+test_subset$log_salario_m_percentil <- 100 * (rank(test_subset$log_salario_m) - 1) / nrow(test_subset)
+test_subset_ordenado <- test_subset[order(-test_subset$diferencia), ]
+#Tomar las diez diferencias mayores 
+top_30 <- head(test_subset_ordenado, 30)
+#Ver en terminos relativos que tan bien se comporta el modelo 
+top_30$variable_relativa_diferencia <- exp(top_30$diferencia_absoluta)
 
 
 

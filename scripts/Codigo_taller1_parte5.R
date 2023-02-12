@@ -222,6 +222,26 @@ MSE2_LOOCV
 mean(unlist(MSE2_LOOCV))
 
 
+## Modelo 9 
+
+set.seed(10101)
+K <- 9892
+index_LOOCV <- split(1:9892, 1: K)
+splt_LOOCV <- lapply(1:K, function(ind) GEIH[index_LOOCV[[ind]], ])
+m2 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+                                  + I(horas_trab_usual^2),data = rbindlist(splt_LOOCV[-ii])))
+#Predicción 
+p2 <- lapply(1:K, function(ii) data.frame(predict(m2[[ii]], newdata = rbindlist(splt_LOOCV[ii]))))
+for (i in 1:K) {
+  colnames(p2[[i]])<-"yhat" 
+  splt_LOOCV[[i]] <- cbind(splt_LOOCV[[i]], p2[[i]])
+  
+}
+MSE2_LOOCV <- lapply(1:K, function(ii) mean((splt_LOOCV[[ii]]$log_salario_m - splt_LOOCV[[ii]]$yhat)^2))
+MSE2_LOOCV
+mean(unlist(MSE2_LOOCV))
 
 
 

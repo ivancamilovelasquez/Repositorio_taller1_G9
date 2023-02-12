@@ -23,7 +23,8 @@ cat("\014")
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse, ggplot2, robotstxt, psych)
+p_load(rvest, tidyverse, Hmisc, lattice, survival, Formula, ggplot2, 
+       robustHD, psych, openxlsx, writexl, robotstxt, showtext)
 
 # - 1. Importar Datos
 
@@ -172,5 +173,70 @@ GEIH <- GEIH %>% filter(!is.na(salario_mensual))
 GEIH$salario_mensual <- psych::winsor(GEIH$salario_mensual, trim = 0.01)
 GEIH$log_salario_m <- log(GEIH$salario_mensual)
 
+# - 3. Estadísticas Descriptivas 
+
+# - Variables de análisis
+
+# - Todos 
+
+Base_descriptivas <- GEIH[c("mujer","edad", "amo_casa", "hijos_hogar",
+                            "estrato", "estudiante", "primaria", 
+                            "secundaria", "media", "superior", 
+                            "salario_mensual", "ingreso_total", 
+                            "exp_trab_actual", "horas_trab_usual", 
+                            "informal")]
+
+estadisticas_todos <- data.frame(sapply(Base_descriptivas, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_todos, file = "Estadisticos_todos.xlsx")
+
+# - Mujeres
+
+Base_Mujeres <- Base_descriptivas[Base_descriptivas$mujer == 1, ]
+
+estadisticas_mujer <- data.frame(sapply(Base_Mujeres, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_mujer, file = "Estadisticos_Mujer.xlsx")
+
+# - Hombres
+
+Base_Hombres <- Base_descriptivas[Base_descriptivas$mujer == 0, ]
+
+estadisticas_hombre <- data.frame(sapply(Base_Hombres, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_hombre, file = "Estadisticos_Hombre.xlsx")
+
+# - Gráficos
+
+grafico <- ggplot(GEIH, aes(x = salario_mensual)) +
+  geom_histogram(bins = 280, color = "black", fill = "gray") +
+  labs(x = "Salario nominal mensual", y = "Frecuencia") +
+  theme_minimal() +
+  scale_x_continuous(labels = function(x) paste0("$", format(x, big.mark = ",", scientific = FALSE)), limits = c(0, 13000000), expand = c(0,0), breaks = seq(0,13000000,1000000)) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ","), limits = c(0, 1000), expand = c(0,0), breaks = seq(0,1000,100)) +
+  theme(text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1))
+
+
+GEIH$genero <- factor(GEIH$mujer) 
+
+GEIH$genero = as.factor(GEIH$mujer)
+levels(GEIH$genero) = c("Hombre", "Mujer")
+
+grafico <- ggplot(GEIH, aes(x = salario_mensual, fill = genero)) +
+  geom_histogram(bins=120, color = "gray", alpha = 0.5) +
+  labs(x = "Salario nominal mensual", y = "Frecuencia") +
+  theme_minimal() +
+  scale_x_continuous(labels = function(x) paste0("$", format(x, big.mark = ",", scientific = FALSE)), limits = c(0, 13000000), expand = c(0,0), breaks = seq(0,13000000,1000000)) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ","), limits = c(0, 1000), expand = c(0,0), breaks = seq(0,1000,100)) +
+  scale_fill_manual(name = "Género", values = c("red", "blue"), labels = c("Hombre", "Mujer")) +
+  theme(text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1),
+        legend.position = "top") 
 
 

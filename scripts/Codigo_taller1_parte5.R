@@ -151,6 +151,36 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
 ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
+
+# Grafica 2 : tomar los betas del mejor modelo y ver como predice en toda la muestra de la GEIH
+
+
+mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+            + superior + horas_trab_usual + informal + factor(oficio) + media 
+            + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+            + I(horas_trab_usual^2) , data = train)
+betas <- coef(mod10)
+GEIH$mod10<-predict(mod10,newdata = GEIH)
+MSE_mejormodelo <-  with(GEIH,mean((log_salario_m-mod10)^2))
+MSE_mejormodelo
+test_subset_mejormodelo_geih <- subset(GEIH, select = c("log_salario_m", "mod10"))
+colnames(test_subset_mejormodelo_geih)[2] <- "mejormodelo"
+
+# Grafica 2 
+par(mfrow = c(1, 1))
+
+plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
+     col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo))
+                                                                    , max(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo)))) 
+lines(density(test_subset_mejormodelo_geih$mejormodelo), col = "blue")
+legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
+theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
+percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
+abline(v = percentiles_observados, col = "grey", lty = 4)
+ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 8, height = 6, units = "in", dpi = 300)
+
+
+
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 
 test_subset$diferencia_absoluta <- abs(test_subset$log_salario_m - test_subset$mejormodelo)

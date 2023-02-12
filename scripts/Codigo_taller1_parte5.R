@@ -131,6 +131,7 @@ write.xlsx(MSE_test_data_frame,
 
 
 
+
 # Dado que el mejor modelo es el 10 ,  guardamos la predicción y el verdadero valor 
 
 test$mejormodelo <- predict(mod10 ,newdata = test)
@@ -178,7 +179,6 @@ theme(legend.position = "topright", text = element_text(size = 12, family = "Ari
 percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
 abline(v = percentiles_observados, col = "grey", lty = 4)
 ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 8, height = 6, units = "in", dpi = 300)
-
 
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
@@ -233,13 +233,16 @@ MSE2_k_test
 mean(unlist(MSE2_k_test))
 
 
+
+
+
 # 5 D LOOCV : Los dos mejores modelos son el 10 y el 9 
 set.seed(10101)
 K <- 9892
 index_LOOCV <- split(1:9892, 1: K)
 splt_LOOCV <- lapply(1:K, function(ind) GEIH[index_LOOCV[[ind]], ])
 m2 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
-                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + superior + horas_trab_usual + informal  + media 
                                   + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
                                   + I(horas_trab_usual^2),data = rbindlist(splt_LOOCV[-ii])))
 #Predicción 
@@ -261,7 +264,7 @@ K <- 9892
 index_LOOCV_2 <- split(1:9892, 1: K)
 splt_LOOCV_2 <- lapply(1:K, function(ind) GEIH[index_LOOCV_2[[ind]], ])
 m3 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
-                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + superior + horas_trab_usual + informal  + media 
                                   + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
                                   ,data = rbindlist(splt_LOOCV_2[-ii])))
 #Predicción 

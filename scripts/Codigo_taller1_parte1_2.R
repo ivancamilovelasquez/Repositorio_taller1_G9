@@ -23,7 +23,8 @@ cat("\014")
 # - Librerias
 
 library(pacman)
-p_load(rvest, tidyverse, ggplot2, robotstxt, psych)
+p_load(rvest, tidyverse, Hmisc, lattice, survival, Formula, ggplot2, 
+       robustHD, psych, openxlsx, writexl, robotstxt, showtext)
 
 # - 1. Importar Datos
 

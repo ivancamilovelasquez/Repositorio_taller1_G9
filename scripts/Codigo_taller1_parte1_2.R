@@ -172,5 +172,42 @@ GEIH <- GEIH %>% filter(!is.na(salario_mensual))
 GEIH$salario_mensual <- psych::winsor(GEIH$salario_mensual, trim = 0.01)
 GEIH$log_salario_m <- log(GEIH$salario_mensual)
 
+# - 3. Estadísticas Descriptivas 
+
+# - Variables de análisis
+
+# - Todos 
+
+Base_descriptivas <- GEIH[c("mujer","edad", "amo_casa", "hijos_hogar",
+                            "estrato", "estudiante", "primaria", 
+                            "secundaria", "media", "superior", 
+                            "salario_mensual", "ingreso_total", 
+                            "exp_trab_actual", "horas_trab_usual", 
+                            "informal")]
+
+estadisticas_todos <- data.frame(sapply(Base_descriptivas, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_todos, file = "Estadisticos_todos.xlsx")
+
+# - Mujeres
+
+Base_Mujeres <- Base_descriptivas[Base_descriptivas$mujer == 1, ]
+
+estadisticas_mujer <- data.frame(sapply(Base_Mujeres, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_mujer, file = "Estadisticos_Mujer.xlsx")
+
+# - Hombres
+
+Base_Hombres <- Base_descriptivas[Base_descriptivas$mujer == 0, ]
+
+estadisticas_hombre <- data.frame(sapply(Base_Hombres, function(x) 
+  c(mean = mean(x), sd = sd(x))))
+
+write.xlsx(estadisticas_hombre, file = "Estadisticos_Hombre.xlsx")
+
+
 
 

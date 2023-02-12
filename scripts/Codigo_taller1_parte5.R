@@ -137,7 +137,9 @@ test$mejormodelo <- predict(mod10 ,newdata = test)
 test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
 
-# Graficas:  valor verdadero y valor predicho, mejor modelo
+#### Graficas:  
+
+# Grafica 1 
 
 par(mfrow = c(1, 1))
 plot(density(test_subset$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
@@ -151,56 +153,52 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
 ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
+
+# Grafica 2 : tomar los betas del mejor modelo y ver como predice en toda la muestra de la GEIH
+
+
+mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+            + superior + horas_trab_usual + informal + factor(oficio) + media 
+            + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+            + I(horas_trab_usual^2) , data = train)
+betas <- coef(mod10)
+GEIH$mod10<-predict(mod10,newdata = GEIH)
+MSE_mejormodelo <-  with(GEIH,mean((log_salario_m-mod10)^2))
+MSE_mejormodelo
+test_subset_mejormodelo_geih <- subset(GEIH, select = c("log_salario_m", "mod10"))
+colnames(test_subset_mejormodelo_geih)[2] <- "mejormodelo"
+
+
+par(mfrow = c(1, 1))
+plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
+     col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo))
+                                                                    , max(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo)))) 
+lines(density(test_subset_mejormodelo_geih$mejormodelo), col = "blue")
+legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
+theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
+percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
+abline(v = percentiles_observados, col = "grey", lty = 4)
+ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 8, height = 6, units = "in", dpi = 300)
+
+
+
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 
+mod10_leverage <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+            + superior + horas_trab_usual + informal + factor(oficio) + media 
+            + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+            + I(horas_trab_usual^2) , data = test)
+test_subset$leverage <- hatvalues(mod10_leverage)
 test_subset$diferencia_absoluta <- abs(test_subset$log_salario_m - test_subset$mejormodelo)
 test_subset$log_salario_m_percentil <- 100 * (rank(test_subset$log_salario_m) - 1) / nrow(test_subset)
 test_subset_ordenado <- test_subset[order(-test_subset$diferencia), ]
+max(test_subset_ordenado$leverage)
 #Tomar las diez diferencias mayores 
 top_10 <- head(test_subset_ordenado, 10)
 write.xlsx(top_10, 
            file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/TOP_10_diferencia_estimacion_mejor_modelo.xlsx")
 
 
-
-# 5 B lo hacemos con K folds. Dividimos los datos en 70% train 30% test 
-# como inicialmente lo hicimos. Hacemos k folds en el 70% dejando siempre 
-# un k como testeo. Luego el mejor modelo lo ponemos a predecir sobre el 
-# 30% inicial que se dejó para testo y mirar que tan bueno es el modelo. 
-
-set.seed(10101)
-K <- 5
-index <- split(1:6920, 1: K)
-splt <- lapply(1:K, function(ind) train[index[[ind]], ])
-head(splt[1])
-m1 <- lapply(1:K, function(ii) lm(log_salario_m~ mujer + superior + horas_trab_usual + edad 
-                                  + edad_2 + informal + estrato + cabecera, 
-                                  data = rbindlist(splt[-ii])))
-#Predicción 
-p1 <- lapply(1:K, function(ii) data.frame(predict(m1[[ii]], newdata = rbindlist(splt[ii]))))
-for (i in 1:K) {
-  colnames(p1[[i]])<-"yhat" 
-  splt[[i]] <- cbind(splt[[i]], p1[[i]])
-  
-}
-MSE2_k <- lapply(1:K, function(ii) mean((splt[[ii]]$log_salario_m - splt[[ii]]$yhat)^2))
-MSE2_k
-mean(unlist(MSE2_k))
-
-# Los cálculos anteriores los hacemos sobre el 30% de test.
-
-K <- 5
-index_test <- split(1:592, 1: K)
-splt_test <- lapply(1:K, function(ind) test[index_test[[ind]], ])
-p1_test <- lapply(1:K, function(ii) data.frame(predict(m1[[ii]], newdata = rbindlist(splt_test[ii]))))
-for (i in 1:K) {
-  colnames(p1_test[[i]])<-"yhat" 
-  splt_test[[i]] <- cbind(splt_test[[i]], p1_test[[i]])
-  
-}
-MSE2_k_test <- lapply(1:K, function(ii) mean((splt_test[[ii]]$log_salario_m - splt_test[[ii]]$yhat)^2))
-MSE2_k_test
-mean(unlist(MSE2_k_test))
 
 
 # 5 D LOOCV : Los dos mejores modelos son el 10 y el 9 
@@ -209,7 +207,7 @@ K <- 9892
 index_LOOCV <- split(1:9892, 1: K)
 splt_LOOCV <- lapply(1:K, function(ind) GEIH[index_LOOCV[[ind]], ])
 m2 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
-                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + superior + horas_trab_usual + informal  + media 
                                   + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
                                   + I(horas_trab_usual^2),data = rbindlist(splt_LOOCV[-ii])))
 #Predicción 
@@ -231,7 +229,7 @@ K <- 9892
 index_LOOCV_2 <- split(1:9892, 1: K)
 splt_LOOCV_2 <- lapply(1:K, function(ind) GEIH[index_LOOCV_2[[ind]], ])
 m3 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
-                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + superior + horas_trab_usual + informal  + media 
                                   + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
                                   ,data = rbindlist(splt_LOOCV_2[-ii])))
 #Predicción 

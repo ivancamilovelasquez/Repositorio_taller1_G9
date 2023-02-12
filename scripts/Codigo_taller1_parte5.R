@@ -22,6 +22,8 @@ p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, ggthemes, data.ta
 # - Fijar el Seed 
 set.seed(10101)
 
+
+
 # - Punto 5A
 
 # Crear una variable ID para la división de la base: train y test 
@@ -33,6 +35,8 @@ GEIH$id <- 1:nrow(GEIH)
 
 train <- GEIH %>%  group_by(oficio) %>% dplyr::sample_frac(0.70)
 test  <- dplyr::anti_join(GEIH, train, by = 'id')
+
+
 
 
 # - Punto 5B
@@ -79,7 +83,7 @@ mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2
            + I(horas_trab_usual^2) , data = train)
 
 
-# Crear archivo de Excel donde pondremos todas las salidas
+# Crear archivo de Excel donde pondremos las salidas
 
 punto5_excel <- createWorkbook()
 addWorksheet(punto5_excel, "Train")
@@ -178,7 +182,6 @@ percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, p
 abline(v = percentiles_observados, col = "grey", lty = 4)
 
 
-
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 
 mod10_leverage <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
@@ -194,6 +197,7 @@ max(test_subset_ordenado$leverage)
 top_10 <- head(test_subset_ordenado, 10)
 write.xlsx(top_10, 
            file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/TOP_10_diferencia_estimacion_mejor_modelo.xlsx")
+
 
 
 

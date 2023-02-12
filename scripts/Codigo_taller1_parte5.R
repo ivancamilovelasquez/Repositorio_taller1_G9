@@ -146,7 +146,8 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
      , max(c(test_subset$log_salario_m, test_subset$mejormodelo)))) 
   lines(density(test_subset$mejormodelo), col = "blue")
   legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
-  theme(legend.position = "topright", text = element_text(size = 12, family = "Arial"))
+  theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
+  
 
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
@@ -176,7 +177,6 @@ m1 <- lapply(1:K, function(ii) lm(log_salario_m~ mujer + superior + horas_trab_u
                                   data = rbindlist(splt[-ii])))
 #Predicción 
 p1 <- lapply(1:K, function(ii) data.frame(predict(m1[[ii]], newdata = rbindlist(splt[ii]))))
-# A los SPLT poner la variable yhat
 for (i in 1:K) {
   colnames(p1[[i]])<-"yhat" 
   splt[[i]] <- cbind(splt[[i]], p1[[i]])
@@ -202,7 +202,27 @@ MSE2_k_test
 mean(unlist(MSE2_k_test))
 
 
-# 5 D LOOCV
+# 5 D LOOCV : Los dos mejores modelos son el 10 y el 9 
+set.seed(10101)
+K <- 9892
+index_LOOCV <- split(1:9892, 1: K)
+splt_LOOCV <- lapply(1:K, function(ind) GEIH[index_LOOCV[[ind]], ])
+m2 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+                                  + I(horas_trab_usual^2),data = rbindlist(splt_LOOCV[-ii])))
+#Predicción 
+p2 <- lapply(1:K, function(ii) data.frame(predict(m2[[ii]], newdata = rbindlist(splt_LOOCV[ii]))))
+for (i in 1:K) {
+  colnames(p2[[i]])<-"yhat" 
+  splt_LOOCV[[i]] <- cbind(splt_LOOCV[[i]], p2[[i]])
+  
+}
+MSE2_LOOCV <- lapply(1:K, function(ii) mean((splt_LOOCV[[ii]]$log_salario_m - splt_LOOCV[[ii]]$yhat)^2))
+MSE2_LOOCV
+mean(unlist(MSE2_LOOCV))
+
+
 
 
 

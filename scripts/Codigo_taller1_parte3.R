@@ -39,7 +39,7 @@ GEIH[which.max(GEIH$prediccion),][5]
 
 # Construir los intervalos de confianza
 b <- quantile(apply(boot$t,2,sd), c(0.025,0.975))
-GEIH$low <- GEIH$prediccion + b[1]
+GEIH$low <- GEIH$prediccion - b[1]
 GEIH$up <- GEIH$prediccion + b[2]
 
 # Gráfica del Peak Age

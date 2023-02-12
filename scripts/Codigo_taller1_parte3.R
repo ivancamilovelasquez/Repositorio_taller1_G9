@@ -38,9 +38,7 @@ GEIH$prediccion <- predict(reg, newdata = GEIH)
 GEIH[which.max(GEIH$prediccion),][5]
 
 # Construir los intervalos de confianza
-install.packages("bootstrap")
-p_load(bootstrap)
-b <- quantile(boot$t, c(0.025,0.975))
+b <- quantile(apply(boot$t,2,sd), c(0.025,0.975))
 GEIH$low <- GEIH$prediccion + b[1]
 GEIH$up <- GEIH$prediccion + b[2]
 
@@ -53,8 +51,3 @@ ggplot() +
   geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
   theme_test() +
   labs(x = "Edad", y = "Logaritmo del Salario")
-
-# Peak age
-ggplot() + 
-  geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH)))
-

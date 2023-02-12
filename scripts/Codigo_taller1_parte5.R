@@ -137,7 +137,9 @@ test$mejormodelo <- predict(mod10 ,newdata = test)
 test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
 
-# Graficas:  valor verdadero y valor predicho, mejor modelo
+#### Graficas:  
+
+# Grafica 1 
 
 par(mfrow = c(1, 1))
 plot(density(test_subset$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
@@ -166,9 +168,8 @@ MSE_mejormodelo
 test_subset_mejormodelo_geih <- subset(GEIH, select = c("log_salario_m", "mod10"))
 colnames(test_subset_mejormodelo_geih)[2] <- "mejormodelo"
 
-# Grafica 2 
-par(mfrow = c(1, 1))
 
+par(mfrow = c(1, 1))
 plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
      col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo))
                                                                     , max(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo)))) 

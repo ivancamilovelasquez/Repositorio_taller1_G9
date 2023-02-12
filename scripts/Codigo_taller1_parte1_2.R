@@ -208,6 +208,34 @@ estadisticas_hombre <- data.frame(sapply(Base_Hombres, function(x)
 
 write.xlsx(estadisticas_hombre, file = "Estadisticos_Hombre.xlsx")
 
+# - Gráficos
 
+grafico <- ggplot(GEIH, aes(x = salario_mensual)) +
+  geom_histogram(bins = 280, color = "black", fill = "gray") +
+  labs(x = "Salario nominal mensual", y = "Frecuencia") +
+  theme_minimal() +
+  scale_x_continuous(labels = function(x) paste0("$", format(x, big.mark = ",", scientific = FALSE)), limits = c(0, 13000000), expand = c(0,0), breaks = seq(0,13000000,1000000)) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ","), limits = c(0, 1000), expand = c(0,0), breaks = seq(0,1000,100)) +
+  theme(text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1))
+
+
+GEIH$genero <- factor(GEIH$mujer) 
+
+GEIH$genero = as.factor(GEIH$mujer)
+levels(GEIH$genero) = c("Hombre", "Mujer")
+
+grafico <- ggplot(GEIH, aes(x = salario_mensual, fill = genero)) +
+  geom_histogram(bins=120, color = "gray", alpha = 0.5) +
+  labs(x = "Salario nominal mensual", y = "Frecuencia") +
+  theme_minimal() +
+  scale_x_continuous(labels = function(x) paste0("$", format(x, big.mark = ",", scientific = FALSE)), limits = c(0, 13000000), expand = c(0,0), breaks = seq(0,13000000,1000000)) +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ","), limits = c(0, 1000), expand = c(0,0), breaks = seq(0,1000,100)) +
+  scale_fill_manual(name = "Género", values = c("red", "blue"), labels = c("Hombre", "Mujer")) +
+  theme(text = element_text(size = 10),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+        axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1),
+        legend.position = "top") 
 
 

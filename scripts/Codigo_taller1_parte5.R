@@ -140,7 +140,7 @@ test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 # Graficas:  valor verdadero y valor predicho, mejor modelo
 
 par(mfrow = c(1, 1))
-plot(density(test_subset$log_salario_m), main = "Distribución de los valores observador y predichos", 
+plot(density(test_subset$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
      col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset$log_salario_m, test_subset$mejormodelo))
      , max(c(test_subset$log_salario_m, test_subset$mejormodelo)))) 
   lines(density(test_subset$mejormodelo), col = "blue")

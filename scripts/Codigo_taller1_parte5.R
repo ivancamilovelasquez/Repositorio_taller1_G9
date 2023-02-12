@@ -104,7 +104,6 @@ for (i in 1:10) {
   MSE_mod_train[i] <- with(train, mean((log_salario_m-prediction_t)^2))
 }
 which.min(MSE_mod_train)
-
 # Tabla de los MSE de los modelos 
 
 Modelo <- c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4", "Modelo 5",
@@ -115,7 +114,6 @@ t(MSE_train_data_frame)
 
 
 # Calcular el MSE en el test
-
 MSE_mod <- numeric(10) 
 for (i in 1:10) {
   modelo <- get(paste0("mod", i)) 
@@ -136,8 +134,8 @@ t(MSE_test_data_frame)
 test$mejormodelo <- predict(mod10 ,newdata = test)
 test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
+#### Graficas:
 
-#### Graficas:  
 # Grafica 1 
 
 par(mfrow = c(1, 1))
@@ -165,7 +163,6 @@ MSE_mejormodelo
 test_subset_mejormodelo_geih <- subset(GEIH, select = c("log_salario_m", "mod10"))
 colnames(test_subset_mejormodelo_geih)[2] <- "mejormodelo"
 
-
 par(mfrow = c(1, 1))
 plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observados y predichos con el mejor modelo", 
      col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo))
@@ -176,6 +173,7 @@ theme(legend.position = "topright", text = element_text(size = 12, family = "Ari
 percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
 abline(v = percentiles_observados, col = "grey", lty = 4)
 #ggsave(file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 7, height = 5, units = "in")
+
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 

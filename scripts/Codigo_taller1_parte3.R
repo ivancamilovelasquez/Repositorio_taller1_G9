@@ -17,7 +17,9 @@ p_load(stargazer,boot)
 
 # Estimación de los betas
 reg<- lm(log_salario_m~edad + edad_2,   data = GEIH)
-stargazer(reg,type="text") #Regression table
+stargazer(reg,type="text", align = TRUE, 
+              no.space = TRUE, title = "Estimación Salario - Edad",
+              out = "C:/Users/andre/OneDrive/Documentos/reg1.tex") 
 
 # Bootstrap para los obtener errores estándar
 eta_fn<-function(data,index){

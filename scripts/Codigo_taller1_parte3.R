@@ -44,9 +44,11 @@ GEIH$up <- GEIH$prediccion + b[2]
 
 # Gráfica del Peak Age
 library(ggplot2)
-ggplot() +
+p3 <- ggplot() +
   geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH))) +
   geom_vline(xintercept = 43, color = "dark green") +
   geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
   theme_minimal() +
   labs(x = "Edad", y = "Logaritmo del Salario")
+
+ggsave(p3, filename = "C:/Users/andre/OneDrive/Documentos/punto3.png", height = 5, width = 6)

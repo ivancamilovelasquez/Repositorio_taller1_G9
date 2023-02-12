@@ -26,32 +26,7 @@ eta_fn<-function(data,index){
 
 eta_fn(GEIH,1:nrow(GEIH))
 
-boot(GEIH, eta_fn, R = 1000)
-
-lm_summary <- summary(reg)$coefficients
-
-# Construir los intervalos de confianza
-coefs = data.frame(
-  Features = rownames(lm_summary),
-  Estimate = lm_summary[,'Estimate'],
-  std_error = apply(boot$t,2,sd)
-)
-
-alpha = 0.05 # 95% Confidence Interval
-coefs$lower = coefs$Estimate - qnorm(alpha/2) * coefs$std_error
-coefs$upper = coefs$Estimate + qnorm(alpha/2) * coefs$std_error
-coefs = coefs[!(coefs$Features == '(Intercept)'),]
-
-
-# Plot de los Intervalos de confianza
-ggplot(coefs) 
-  geom_vline(xintercept = 0, linetype = 4) + #adds a vertical line at zero
-  geom_point(aes(x = Estimate, y = Features)) + #point estimate
-  geom_segment(aes(y = Features, yend = Features, x = lower, xend = upper),
-               arrow = arrow(angle = 90, ends = 'both', 
-                             length = unit(0.1, 'cm'))) + #segment representing the CI
-  labs(x = 'Coeffienient estimate') +
-  theme_bw() 
+boot <- boot(GEIH, eta_fn, R = 1000)
 
 # Peak age
 ggplot() + 
@@ -59,4 +34,25 @@ ggplot() +
 
 GEIH$prediccion <- predict(reg, newdata = GEIH)
 GEIH[which.max(GEIH$prediccion),][5]
+
+# Construir los intervalos de confianza
+install.packages("bootstrap")
+p_load(bootstrap)
+b <- quantile(boot$t, c(0.025,0.975))
+GEIH$low <- GEIH$prediccion + b[1]
+GEIH$up <- GEIH$prediccion + b[2]
+
+# Gráfica del Peak Age
+library(ggplot2)
+ggplot() +
+  geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH))) +
+  geom_point() +
+  geom_vline(xintercept = 43) +
+  geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
+  theme_test() +
+  labs(x = "Edad", y = "Logaritmo del Salario")
+
+# Peak age
+ggplot() + 
+  geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH)))
 

@@ -83,8 +83,7 @@ mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2
 
 punto5_excel <- createWorkbook()
 addWorksheet(punto5_excel, "Train")
-salidas1 <- as.data.frame(stargazer(mod1, mod2, mod3, mod4 , mod5 , mod6, 
-                                    mod7, mod8, mod9, mod10, type = "text" 
+salidas1 <- as.data.frame(stargazer( mod6, mod7, mod8, mod9, mod10, type = "latex" 
                                     , omit = c("oficio") , digits = 3))
 writeData(punto5_excel, "Train", salidas1)
 saveWorkbook(punto5_excel, file = "D:\\2023\\ANDES\\Big data\\Taller1\\Repositorio_taller1_G9\\views\\Salida_punto5.xlsx", overwrite = TRUE)

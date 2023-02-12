@@ -29,8 +29,13 @@ p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, boot, openxlsx)
 
 
 mod1 <- lm(log_salario_m~mujer,GEIH)
-output_mod1 <- capture.output(stargazer(mod1, type = "text")) 
-write.xlsx(output_mod1, file = "stargazer_output1.xlsx")
+stargazer(mod1, type = "text")
+# - Exportar la tabla a un archivo de Excel
+reg_mod_1 <- createWorkbook()
+addWorksheet(reg_mod_1, "Resultados del modelo")
+writeData(reg_mod_1, "Resultados del modelo", results_table)
+saveWorkbook(reg_mod_1, "resultados_modelo.xlsx", overwrite = TRUE, 
+             file = "C:/Users/Santiago/Downloads/Escritorio/DOCUMENTOS SANTIGO/Maestria Uniandes/Big Data & Machine Learning/Repositorios/Repositorio_taller1_G9/views/reg_mod_1.xlsx")
 
 
 # - b) ¿Salario igual para trabajos iguales?
@@ -39,8 +44,13 @@ write.xlsx(output_mod1, file = "stargazer_output1.xlsx")
 # - i) Haciendo uso del Teorema FWL:
 
 mod2 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ factor(oficio), GEIH)
-output_mod2 <- capture.output(stargazer(mod1, mod2, type = "text", omit = c("oficio"))) 
-write.csv(output_mod2, file = "stargazer_output2.csv")
+stargazer(mod1, mod2, type = "text", omit = c("oficio"))
+# - Exportar la tabla a un archivo de Excel
+reg_mod_2 <- createWorkbook()
+addWorksheet(reg_mod_2, "Resultados del modelo")
+writeData(reg_mod_2, "Resultados del modelo", results_table)
+saveWorkbook(reg_mod_2, "resultados_modelo.xlsx", overwrite = TRUE, 
+             file = "C:/Users/Santiago/Downloads/Escritorio/DOCUMENTOS SANTIGO/Maestria Uniandes/Big Data & Machine Learning/Repositorios/Repositorio_taller1_G9/views/reg_mod_2.xlsx")
 
 # 1) paso 1
 GEIH<-GEIH %>% 
@@ -76,12 +86,13 @@ boot(GEIH, fwl_in_action, R = 1000)
 # - Gráfica de la brecha edad salario pronosticada con sus edades pico por género:
 
 mod3 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 + superior + horas_trab_usual + informal, GEIH)
-results_table <- capture.output(stargazer(mod3, type = "text"))
+stargazer(mod3, type = "text")
 # - Exportar la tabla a un archivo de Excel
-wb <- createWorkbook()
-addWorksheet(wb, "Resultados del modelo")
-writeData(wb, "Resultados del modelo", results_table)
-saveWorkbook(wb, "resultados_modelo.xlsx", overwrite = TRUE)
+reg_mod_3 <- createWorkbook()
+addWorksheet(reg_mod_3, "Resultados del modelo")
+writeData(reg_mod_3, "Resultados del modelo", results_table)
+saveWorkbook(reg_mod_3, "resultados_modelo.xlsx", overwrite = TRUE, 
+             file = "C:/Users/Santiago/Downloads/Escritorio/DOCUMENTOS SANTIGO/Maestria Uniandes/Big Data & Machine Learning/Repositorios/Repositorio_taller1_G9/views/reg_mod_3.xlsx")
 
 # - Bootstrap para los obtener errores estándar
 
@@ -106,7 +117,8 @@ boot_h <- boot(base_h, eta_fn_h, R = 1000)
 boot_h
 
 # - Edad pico para mujeres
-b1 <- apply(boot_h$t, 2)
+b1 <- boot_m$t
+b1
 
 
 base_m$prediccion <- predict(mod3, newdata = x_mujer)

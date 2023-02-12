@@ -106,7 +106,7 @@ boot_h <- boot(base_h, eta_fn_h, R = 1000)
 boot_h
 
 # - Edad pico para mujeres
-b1 <- as.matrix(boot_m$t)
+b1 <- apply(boot_h$t, 2)
 
 
 base_m$prediccion <- predict(mod3, newdata = x_mujer)

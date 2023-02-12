@@ -131,7 +131,6 @@ write.xlsx(MSE_test_data_frame,
 
 
 
-
 # Dado que el mejor modelo es el 10 ,  guardamos la predicción y el verdadero valor 
 
 test$mejormodelo <- predict(mod10 ,newdata = test)
@@ -181,15 +180,23 @@ abline(v = percentiles_observados, col = "grey", lty = 4)
 ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
+
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 
+mod10_leverage <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+            + superior + horas_trab_usual + informal + factor(oficio) + media 
+            + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+            + I(horas_trab_usual^2) , data = test)
+test_subset$leverage <- hatvalues(mod10_leverage)
 test_subset$diferencia_absoluta <- abs(test_subset$log_salario_m - test_subset$mejormodelo)
 test_subset$log_salario_m_percentil <- 100 * (rank(test_subset$log_salario_m) - 1) / nrow(test_subset)
 test_subset_ordenado <- test_subset[order(-test_subset$diferencia), ]
+max(test_subset_ordenado$leverage)
 #Tomar las diez diferencias mayores 
 top_10 <- head(test_subset_ordenado, 10)
 write.xlsx(top_10, 
            file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/TOP_10_diferencia_estimacion_mejor_modelo.xlsx")
+
 
 
 

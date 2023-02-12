@@ -83,8 +83,7 @@ mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2
 
 punto5_excel <- createWorkbook()
 addWorksheet(punto5_excel, "Train")
-salidas1 <- as.data.frame(stargazer(mod1, mod2, mod3, mod4 , mod5 , mod6, 
-                                    mod7, mod8, mod9, mod10, type = "text" 
+salidas1 <- as.data.frame(stargazer( mod6, mod7, mod8, mod9, mod10, type = "latex" 
                                     , omit = c("oficio") , digits = 3))
 writeData(punto5_excel, "Train", salidas1)
 saveWorkbook(punto5_excel, file = "D:\\2023\\ANDES\\Big data\\Taller1\\Repositorio_taller1_G9\\views\\Salida_punto5.xlsx", overwrite = TRUE)
@@ -147,7 +146,9 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
   lines(density(test_subset$mejormodelo), col = "blue")
   legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
   theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
-  
+  percentiles_observados <- quantile(test_subset$log_salario_m, probs = c(0.05, 0.5, 0.9))
+  abline(v = percentiles_observados, col = "grey", lty = 4)
+ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
@@ -223,6 +224,26 @@ MSE2_LOOCV
 mean(unlist(MSE2_LOOCV))
 
 
+## Modelo 9 
+
+set.seed(10101)
+K <- 9892
+index_LOOCV_2 <- split(1:9892, 1: K)
+splt_LOOCV_2 <- lapply(1:K, function(ind) GEIH[index_LOOCV_2[[ind]], ])
+m3 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+                                  + superior + horas_trab_usual + informal + factor(oficio) + media 
+                                  + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+                                  ,data = rbindlist(splt_LOOCV_2[-ii])))
+#Predicción 
+p3 <- lapply(1:K, function(ii) data.frame(predict(m3[[ii]], newdata = rbindlist(splt_LOOCV_2[ii]))))
+for (i in 1:K) {
+  colnames(p3[[i]])<-"yhat" 
+  splt_LOOCV_2[[i]] <- cbind(splt_LOOCV_2[[i]], p3[[i]])
+  
+}
+MSE2_LOOCV_2 <- lapply(1:K, function(ii) mean((splt_LOOCV_2[[ii]]$log_salario_m - splt_LOOCV_2[[ii]]$yhat)^2))
+MSE2_LOOCV_2
+mean(unlist(MSE2_LOOCV_2))
 
 
 

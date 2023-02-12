@@ -46,8 +46,7 @@ GEIH$up <- GEIH$prediccion + b[2]
 library(ggplot2)
 ggplot() +
   geom_line(aes(x=GEIH$edad,y=predict(reg, newdata = GEIH))) +
-  geom_point() +
-  geom_vline(xintercept = 43) +
+  geom_vline(xintercept = 43, color = "dark green") +
   geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
-  theme_test() +
+  theme_minimal() +
   labs(x = "Edad", y = "Logaritmo del Salario")

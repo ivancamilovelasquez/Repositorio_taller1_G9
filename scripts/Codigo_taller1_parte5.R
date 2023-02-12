@@ -146,7 +146,8 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
   lines(density(test_subset$mejormodelo), col = "blue")
   legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
   theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
-  
+  percentiles_observados <- quantile(test_subset$log_salario_m, probs = c(0.05, 0.5, 0.9))
+  abline(v = percentiles_observados, col = "grey", lty = 4)
 ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
 
 

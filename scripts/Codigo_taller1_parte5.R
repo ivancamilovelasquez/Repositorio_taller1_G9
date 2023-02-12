@@ -236,13 +236,13 @@ m3 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_
 #Predicción 
 p3 <- lapply(1:K, function(ii) data.frame(predict(m3[[ii]], newdata = rbindlist(splt_LOOCV_2[ii]))))
 for (i in 1:K) {
-  colnames(p2[[i]])<-"yhat" 
-  splt_LOOCV[[i]] <- cbind(splt_LOOCV[[i]], p2[[i]])
+  colnames(p3[[i]])<-"yhat" 
+  splt_LOOCV_2[[i]] <- cbind(splt_LOOCV_2[[i]], p3[[i]])
   
 }
-MSE2_LOOCV <- lapply(1:K, function(ii) mean((splt_LOOCV[[ii]]$log_salario_m - splt_LOOCV[[ii]]$yhat)^2))
-MSE2_LOOCV
-mean(unlist(MSE2_LOOCV))
+MSE2_LOOCV_2 <- lapply(1:K, function(ii) mean((splt_LOOCV_2[[ii]]$log_salario_m - splt_LOOCV_2[[ii]]$yhat)^2))
+MSE2_LOOCV_2
+mean(unlist(MSE2_LOOCV_2))
 
 
 

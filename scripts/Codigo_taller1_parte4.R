@@ -43,7 +43,11 @@ saveWorkbook(reg_mod_1, "resultados_modelo.xlsx", overwrite = TRUE,
 # - control tales como características similares del trabajador y del puesto.
 # - i) Haciendo uso del Teorema FWL:
 
-mod2 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ factor(oficio), GEIH)
+GEIH <- GEIH %>% 
+        mutate(mujer_edad = mujer*edad,
+               mujer_edad2 = mujer*edad_2)
+
+mod2 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2, GEIH)
 stargazer(mod1, mod2, type = "text", omit = c("oficio"))
 # - Exportar la tabla a un archivo de Excel
 reg_mod_2 <- createWorkbook()
@@ -54,30 +58,30 @@ saveWorkbook(reg_mod_2, "resultados_modelo.xlsx", overwrite = TRUE,
 
 # 1) paso 1
 GEIH<-GEIH %>% 
-  mutate(y_Resid=lm(log_salario_m ~ edad + edad_2 + superior + horas_trab_usual + informal + factor(oficio),GEIH)$residuals)
+  mutate(y_Resid=lm(log_salario_m ~ edad + edad_2 + superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)$residuals)
 
 # 2) paso 2
 GEIH<-GEIH %>% 
-  mutate(x_Resid=lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal+ + factor(oficio),GEIH)$residuals) 
+  mutate(x_Resid=lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)$residuals) 
 
 # 3) Regress the residuals from step 2 on the residuals from step 1
 
 reg2<-lm(y_Resid~x_Resid,GEIH)
-stargazer(mod2,reg2,type="text", omit = c("oficio")) 
+stargazer(mod2,reg2,type="text") 
 
 
 # - ii) FWL con Bootstrap
 # - crear la funcion de FWL
-fwl_in_action<-function(data,index) {
+fwl_in_action<-function(GEIH,index) {
   #FWL is the regression of residuals on residuals
-  data$y_resid<-resid(lm(log_salario_m ~ edad + edad_2+ superior + horas_trab_usual + informal + factor(oficio), data=data, subset=index))
-  data$x_resid<-resid(lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal + factor(oficio), data=data, subset=index))
-  coef_interest<-coef(lm(y_resid~x_resid, data=data, subset=index))
+  GEIH$y_resid<-resid(lm(log_salario_m ~ edad + edad_2+ superior + horas_trab_usual + informal + mujer_edad + mujer_edad2, data=GEIH, subset=index))
+  GEIH$x_resid<-resid(lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal  + mujer_edad + mujer_edad2, data=GEIH, subset=index))
+  coef_interest<-coef(lm(y_resid~x_resid, data=GEIH, subset=index))
   coef_interest
 }
 
 # - verificar que funciona
-lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal + factor(oficio),GEIH)
+lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)
 fwl_in_action(GEIH,1:nrow(GEIH))
 
 # - implemento Bootstrap
@@ -85,7 +89,7 @@ boot(GEIH, fwl_in_action, R = 1000)
 
 # - Gráfica de la brecha edad salario pronosticada con sus edades pico por género:
 
-mod3 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 + superior + horas_trab_usual + informal, GEIH)
+mod3 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ mujer_edad + mujer_edad, GEIH)
 stargazer(mod3, type = "text")
 # - Exportar la tabla a un archivo de Excel
 reg_mod_3 <- createWorkbook()
@@ -93,6 +97,8 @@ addWorksheet(reg_mod_3, "Resultados del modelo")
 writeData(reg_mod_3, "Resultados del modelo", results_table)
 saveWorkbook(reg_mod_3, "resultados_modelo.xlsx", overwrite = TRUE, 
              file = "C:/Users/Santiago/Downloads/Escritorio/DOCUMENTOS SANTIGO/Maestria Uniandes/Big Data & Machine Learning/Repositorios/Repositorio_taller1_G9/views/reg_mod_3.xlsx")
+
+
 
 # - Bootstrap para los obtener errores estándar
 

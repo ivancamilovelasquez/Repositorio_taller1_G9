@@ -147,6 +147,7 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
   legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = c("red", "blue")) +
   theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
   
+ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
@@ -226,14 +227,14 @@ mean(unlist(MSE2_LOOCV))
 
 set.seed(10101)
 K <- 9892
-index_LOOCV <- split(1:9892, 1: K)
-splt_LOOCV <- lapply(1:K, function(ind) GEIH[index_LOOCV[[ind]], ])
-m2 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+index_LOOCV_2 <- split(1:9892, 1: K)
+splt_LOOCV_2 <- lapply(1:K, function(ind) GEIH[index_LOOCV_2[[ind]], ])
+m3 <- lapply(1:K, function(ii) lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
                                   + superior + horas_trab_usual + informal + factor(oficio) + media 
                                   + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
-                                  + I(horas_trab_usual^2),data = rbindlist(splt_LOOCV[-ii])))
+                                  ,data = rbindlist(splt_LOOCV_2[-ii])))
 #Predicción 
-p2 <- lapply(1:K, function(ii) data.frame(predict(m2[[ii]], newdata = rbindlist(splt_LOOCV[ii]))))
+p3 <- lapply(1:K, function(ii) data.frame(predict(m3[[ii]], newdata = rbindlist(splt_LOOCV_2[ii]))))
 for (i in 1:K) {
   colnames(p2[[i]])<-"yhat" 
   splt_LOOCV[[i]] <- cbind(splt_LOOCV[[i]], p2[[i]])

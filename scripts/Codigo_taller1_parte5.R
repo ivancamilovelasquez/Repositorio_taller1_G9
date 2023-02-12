@@ -84,13 +84,14 @@ mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2
 
 
 # Crear archivo de Excel donde pondremos las salidas
-
 punto5_excel <- createWorkbook()
 addWorksheet(punto5_excel, "Train")
+
+# Salidas reg de los nuevos modelos con los datos de entrenamiento
 salidas1 <- as.data.frame(stargazer( mod6, mod7, mod8, mod9, mod10, type = "latex" 
                                     , omit = c("oficio") , digits = 3))
 writeData(punto5_excel, "Train", salidas1)
-saveWorkbook(punto5_excel, file = "D:\\2023\\ANDES\\Big data\\Taller1\\Repositorio_taller1_G9\\views\\Salida_punto5.xlsx", overwrite = TRUE)
+#saveWorkbook(punto5_excel, file = "D:\\2023\\ANDES\\Big data\\Taller1\\Repositorio_taller1_G9\\views\\Salida_punto5.xlsx", overwrite = TRUE)
 
 
 # Calcular el MSE en los  train 
@@ -110,9 +111,7 @@ Modelo <- c("Modelo 1", "Modelo 2", "Modelo 3", "Modelo 4", "Modelo 5",
             "Modelo 6", "Modelo 7", "Modelo 8", "Modelo 9", "Modelo 10")
 MSE_train_data_frame <- data.frame(Modelo, MSE_mod_train)
 t(MSE_train_data_frame)
-write.xlsx(MSE_train_data_frame, 
-           file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/MSE_train_data_frame.xlsx")
-
+#write.xlsx(MSE_train_data_frame,file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/MSE_train_data_frame.xlsx")
 
 
 # Calcular el MSE en el test
@@ -129,10 +128,7 @@ which.min(MSE_mod)
 # Tabla de los MSE de los modelos 
 MSE_test_data_frame <- data.frame(Modelo, MSE_mod)
 t(MSE_test_data_frame)
-write.xlsx(MSE_test_data_frame, 
-           file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/MSE_test_data_frame.xlsx")
-
-
+#write.xlsx(MSE_test_data_frame,file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/MSE_test_data_frame.xlsx")
 
 
 # Dado que el mejor modelo es el 10 ,  guardamos la predicción y el verdadero valor 
@@ -142,7 +138,6 @@ test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 
 
 #### Graficas:  
-
 # Grafica 1 
 
 par(mfrow = c(1, 1))
@@ -154,10 +149,10 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
   theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
   percentiles_observados <- quantile(test_subset$log_salario_m, probs = c(0.05, 0.5, 0.9))
   abline(v = percentiles_observados, col = "grey", lty = 4)
+  #ggsave(file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 7, height = 5, units = "in")
 
 
 # Grafica 2 : tomar los betas del mejor modelo y ver como predice en toda la muestra de la GEIH
-
 
 mod10 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
             + superior + horas_trab_usual + informal + factor(oficio) + media 
@@ -180,7 +175,7 @@ legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = 
 theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
 percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
 abline(v = percentiles_observados, col = "grey", lty = 4)
-
+#ggsave(file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 7, height = 5, units = "in")
 
 # Diferencia entre el valor verdadero y el predicho en el mejor modelo
 
@@ -195,9 +190,7 @@ test_subset_ordenado <- test_subset[order(-test_subset$diferencia), ]
 max(test_subset_ordenado$leverage)
 #Tomar las diez diferencias mayores 
 top_10 <- head(test_subset_ordenado, 10)
-write.xlsx(top_10, 
-           file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/TOP_10_diferencia_estimacion_mejor_modelo.xlsx")
-
+#write.xlsx(top_10, file = "D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/TOP_10_diferencia_estimacion_mejor_modelo.xlsx")
 
 
 

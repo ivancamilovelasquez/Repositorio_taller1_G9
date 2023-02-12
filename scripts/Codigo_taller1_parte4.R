@@ -29,7 +29,7 @@ p_load(rvest, tidyverse, ggplot2, robotstxt, psych, stargazer, boot, openxlsx)
 
 
 mod1 <- lm(log_salario_m~mujer,GEIH)
-stargazer(mod1, type = "text")
+stargazer(mod1)
 # - Exportar la tabla a un archivo de Excel
 reg_mod_1 <- createWorkbook()
 addWorksheet(reg_mod_1, "Resultados del modelo")
@@ -47,8 +47,8 @@ GEIH <- GEIH %>%
         mutate(mujer_edad = mujer*edad,
                mujer_edad2 = mujer*edad_2)
 
-mod2 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2, GEIH)
-stargazer(mod1, mod2, type = "text", omit = c("oficio"))
+mod2 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal, GEIH)
+stargazer(mod1, mod2, omit = c("oficio"))
 # - Exportar la tabla a un archivo de Excel
 reg_mod_2 <- createWorkbook()
 addWorksheet(reg_mod_2, "Resultados del modelo")
@@ -58,97 +58,182 @@ saveWorkbook(reg_mod_2, "resultados_modelo.xlsx", overwrite = TRUE,
 
 # 1) paso 1
 GEIH<-GEIH %>% 
-  mutate(y_Resid=lm(log_salario_m ~ edad + edad_2 + superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)$residuals)
+  mutate(y_Resid=lm(log_salario_m ~ edad + edad_2 + superior + horas_trab_usual + informal,GEIH)$residuals)
 
 # 2) paso 2
 GEIH<-GEIH %>% 
-  mutate(x_Resid=lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)$residuals) 
+  mutate(x_Resid=lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal,GEIH)$residuals) 
 
 # 3) Regress the residuals from step 2 on the residuals from step 1
 
 reg2<-lm(y_Resid~x_Resid,GEIH)
-stargazer(mod2,reg2,type="text") 
+stargazer(mod2,reg2) 
 
 
 # - ii) FWL con Bootstrap
 # - crear la funcion de FWL
 fwl_in_action<-function(GEIH,index) {
   #FWL is the regression of residuals on residuals
-  GEIH$y_resid<-resid(lm(log_salario_m ~ edad + edad_2+ superior + horas_trab_usual + informal + mujer_edad + mujer_edad2, data=GEIH, subset=index))
-  GEIH$x_resid<-resid(lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal  + mujer_edad + mujer_edad2, data=GEIH, subset=index))
+  GEIH$y_resid<-resid(lm(log_salario_m ~ edad + edad_2+ superior + horas_trab_usual + informal , data=GEIH, subset=index))
+  GEIH$x_resid<-resid(lm(mujer ~ edad + edad_2+ superior + horas_trab_usual + informal, data=GEIH, subset=index))
   coef_interest<-coef(lm(y_resid~x_resid, data=GEIH, subset=index))
   coef_interest
 }
 
 # - verificar que funciona
-lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal + mujer_edad + mujer_edad2,GEIH)
+lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal ,GEIH)
 fwl_in_action(GEIH,1:nrow(GEIH))
 
 # - implemento Bootstrap
-boot(GEIH, fwl_in_action, R = 1000)
+boot_FWL <- boot(GEIH, fwl_in_action, R = 1000)
+boot_FWL
+
+
 
 # - Gráfica de la brecha edad salario pronosticada con sus edades pico por género:
 
-mod3 <- lm(log_salario_m~mujer + edad + edad_2 + superior + horas_trab_usual + informal+ mujer_edad + mujer_edad, GEIH)
-stargazer(mod3, type = "text")
-# - Exportar la tabla a un archivo de Excel
-reg_mod_3 <- createWorkbook()
-addWorksheet(reg_mod_3, "Resultados del modelo")
-writeData(reg_mod_3, "Resultados del modelo", results_table)
-saveWorkbook(reg_mod_3, "resultados_modelo.xlsx", overwrite = TRUE, 
-             file = "C:/Users/Santiago/Downloads/Escritorio/DOCUMENTOS SANTIGO/Maestria Uniandes/Big Data & Machine Learning/Repositorios/Repositorio_taller1_G9/views/reg_mod_3.xlsx")
+mod3 <- lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH)
+coefs <- mod3$coef
+coefs
 
-
-
-# - Bootstrap para los obtener errores estándar
-
-base_m <- GEIH[GEIH$mujer == 1, ]
-
-base_h <- GEIH[GEIH$mujer == 0, ]
-
-eta_fn_m<-function(base_m,index){
-  coef(lm(log_salario_m~ edad + edad_2 + superior + horas_trab_usual + informal, data = base_m, subset = index)) 
+eta_mod3_fn_m<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+  peak_m<- (-(b2+b7)/(2*(b3+b8)))
+  
+  return(peak_m)
 }
 
-eta_fn_h<-function(base_h,index){
-  coef(lm(log_salario_m~ edad + edad_2 + superior + horas_trab_usual + informal, data = base_h, subset = index)) 
-}
+eta_mod3_fn_m(GEIH,1:nrow(GEIH))
 
-
-
-boot_m <- boot(base_m, eta_fn_m, R = 1000)
+boot_m <- boot(GEIH, eta_mod3_fn_m, R = 1000)
 boot_m
 
-boot_h <- boot(base_h, eta_fn_h, R = 1000)
+# - Calculo ntervalos de confianza 
+
+intervalo_m <- quantile(boot_m$t, c(0.025, 0.975))
+intervalo_m
+
+eta_mod3_fn_h<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+    peak_h <- (-b2/(2*b3))
+  
+  return(peak_h)
+}
+
+eta_mod3_fn_h(GEIH,1:nrow(GEIH))
+
+boot_h <- boot(GEIH, eta_mod3_fn_h, R = 1000)
 boot_h
 
-# - Edad pico para mujeres
-b1 <- boot_m$t
-b1
+# intervalos de confianza para los hombres 
+
+intervalo_h <- quantile(boot_h$t, c(0.025, 0.975))
+intervalo_h
+
+# - Grafica edades pico para mujeres 
+
+edad_m<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+  beta_edad_m<- ((b2+b7))
+  
+  
+  return(beta_edad_m)
+  
+}
+
+edad_m(GEIH,1:nrow(GEIH))
+
+boot_edad_m <- boot(GEIH, edad_m, R = 1000)
+boot_edad_m
 
 
-base_m$prediccion <- predict(mod3, newdata = x_mujer)
-base_m[which.max(base_m$prediccion),][6]
+edad2_m<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+  beta_edad2_m <- (b3+b8)
+  
+  
+  return(beta_edad2_m)
+  
+}
 
-# - Edad pico para hombres 
-base_h$prediccion <- predict(mod3, newdata = x_hombre)
-base_h[which.max(base_h$prediccion),][6]
+edad2_m(GEIH,1:nrow(GEIH))
 
-# Intervalos de confianza
-# - Mujeres 
-
-# - Hombres 
+boot_edad2_m <- boot(GEIH, edad2_m, R = 1000)
+boot_edad2_m
 
 
 
+# - Calculo intervalos de confianza 
 
+intervalo_m <- quantile(boot_m$t, c(0.025, 0.975))
+intervalo_m
 
-GEIH <- rbind(base_m,base_h)
-
-ggplot() + 
-  geom_line(aes(x=base_full$edad,y=predict(mod3, newdata = base_full), color=as.factor(base_full$mujer))) + 
-  xlab("Edad") + ylab("Salario Predicho") + ggtitle("Gráfico de Edad versus Salario Predicho")
-
+ggplot() +
+  geom_line(aes(x=GEIH$edad,y=predict(mod3, newdata = GEIH))) +
+  geom_vline(xintercept = 43, color = "dark green") +
+  geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
+  theme_minimal() +
+  labs(x = "Edad", y = "Logaritmo del Salario")
 
 
 

@@ -142,7 +142,7 @@ test_subset <- subset(test, select = c("log_salario_m", "mejormodelo"))
 # Grafica 1 
 
 par(mfrow = c(1, 1))
-plot(density(test_subset$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
+plot(density(test_subset$log_salario_m), main = "Distribución de los valores observados y predichos con el mejor modelo", 
      col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset$log_salario_m, test_subset$mejormodelo))
      , max(c(test_subset$log_salario_m, test_subset$mejormodelo)))) 
   lines(density(test_subset$mejormodelo), col = "blue")
@@ -150,8 +150,6 @@ plot(density(test_subset$log_salario_m), main = "Distribución de los valores ob
   theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
   percentiles_observados <- quantile(test_subset$log_salario_m, probs = c(0.05, 0.5, 0.9))
   abline(v = percentiles_observados, col = "grey", lty = 4)
-ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5.png", width = 8, height = 6, units = "in", dpi = 300)
-
 
 
 # Grafica 2 : tomar los betas del mejor modelo y ver como predice en toda la muestra de la GEIH
@@ -170,7 +168,7 @@ colnames(test_subset_mejormodelo_geih)[2] <- "mejormodelo"
 
 
 par(mfrow = c(1, 1))
-plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observador y predichos con el mejor modelo", 
+plot(density(test_subset_mejormodelo_geih$log_salario_m), main = "Distribución de los valores observados y predichos con el mejor modelo", 
      col = "red", xlab = "Log salario", ylab = "Densidad", xlim = c(min(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo))
                                                                     , max(c(test_subset_mejormodelo_geih$log_salario_m, test_subset_mejormodelo_geih$mejormodelo)))) 
 lines(density(test_subset_mejormodelo_geih$mejormodelo), col = "blue")
@@ -178,7 +176,6 @@ legend("topright", c("Valor observado", "Valor predicho"), lty = c(1, 1), col = 
 theme(legend.position = "topright", text = element_text(size = 12, family = "Arial")) 
 percentiles_observados <- quantile(test_subset_mejormodelo_geih$log_salario_m, probs = c(0.05, 0.5, 0.9))
 abline(v = percentiles_observados, col = "grey", lty = 4)
-ggsave("D:/2023/ANDES/Big data/Taller1/Repositorio_taller1_G9/views/punto5_GEIH.png", width = 8, height = 6, units = "in", dpi = 300)
 
 
 

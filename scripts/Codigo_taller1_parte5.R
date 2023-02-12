@@ -235,6 +235,36 @@ MSE2_LOOCV_2 <- lapply(1:K, function(ii) mean((splt_LOOCV_2[[ii]]$log_salario_m 
 MSE2_LOOCV_2
 mean(unlist(MSE2_LOOCV_2))
 
+# Dado que los modelos 9 y 10 toco modiciarlos por un error en la variable oficio 
+# (Factor(oficio) has new level, esto pasa por que hay oficios con un solo valor) 
+# volvemos a repetir el paso anterior para estos dos modelos. 
+# Modelo 11 es el modificado del 9, modelo 12 es el modificado del 10
+
+mod11 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+           + superior + horas_trab_usual + informal + media 
+           + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) , data = train)
+
+mod12 <- lm(log_salario_m~mujer + mujer*edad + mujer*edad_2 + edad + edad_2 
+            + superior + horas_trab_usual + informal  + media 
+            + exp_trab_actual + factor(estrato) + I(exp_trab_actual^2) 
+            + I(horas_trab_usual^2) , data = train)
+
+MSE_mod_train_punto5 <- numeric(2) 
+for (i in 11:12) {
+  modelo_t <- get(paste0("mod", i)) 
+  prediction_t <- predict(modelo_t,newdata = train)
+  train[[paste0("mod", i)]] <- prediction_t
+  MSE_mod_train_punto5[i] <- with(train, mean((log_salario_m-prediction_t)^2))
+}
+MSE_mod_train_punto5
 
 
-
+# Calcular el MSE en el test
+MSE_mod_punto5 <- numeric(2) 
+for (i in 11:12) {
+  modelo <- get(paste0("mod", i)) 
+  prediction <- predict(modelo,newdata = test)
+  test[[paste0("mod", i)]] <- prediction
+  MSE_mod_punto5[i] <- with(test, mean((log_salario_m-prediction)^2))
+}
+MSE_mod_punto5

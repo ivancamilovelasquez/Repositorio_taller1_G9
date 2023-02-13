@@ -159,6 +159,7 @@ boot_h
 
 intervalo_h <- quantile(boot_h$t, c(0.025, 0.975))
 intervalo_h
+################################################################################
 
 # - Grafica edades pico para mujeres 
 
@@ -190,6 +191,8 @@ edad_m(GEIH,1:nrow(GEIH))
 
 boot_edad_m <- boot(GEIH, edad_m, R = 1000)
 boot_edad_m
+coef_ed_mujer <- boot_edad_m$t0
+se_ed_mujer <- apply(boot_edad_m$t,2,sd)
 
 
 edad2_m<-function(GEIH,index){
@@ -220,20 +223,117 @@ edad2_m(GEIH,1:nrow(GEIH))
 
 boot_edad2_m <- boot(GEIH, edad2_m, R = 1000)
 boot_edad2_m
+coef_ed2_mujer <- boot_edad2_m$t0
+se_ed2_mujer <- apply(boot_edad2_m$t,2,sd)
+
+###############################################################################
+###############################################################################
+
+# - Grafica edades pico para hombres
+
+edad_h<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+  beta_edad_h<- ((b2))
+  
+  
+  return(beta_edad_h)
+  
+}
+
+edad_h(GEIH,1:nrow(GEIH))
+
+boot_edad_h <- boot(GEIH, edad_h, R = 1000)
+boot_edad_h
+coef_ed_hombre <- boot_edad_h$t0
+se_ed_hombre <- apply(boot_edad_h$t,2,sd)
 
 
+edad2_h<-function(GEIH,index){
+  
+  # Obtener coeficientes
+  coefs<-lm(log_salario_m ~ mujer+ edad + edad_2+ superior + horas_trab_usual + informal+ mujer_edad + mujer_edad2,GEIH, subset = index)$coefficients
+  
+  # Colocar coeficientes en escalares 
+  b0<-coefs[1]
+  b1<-coefs[2] 
+  b2<-coefs[3]
+  b3<-coefs[4]
+  b4<-coefs[5] 
+  b5<-coefs[6] 
+  b6<-coefs[7]
+  b7<-coefs[8] 
+  b8<-coefs[9] 
+  
+  # Calcular edad pico para mujeres
+  beta_edad2_h <- (b3)
+  
+  
+  return(beta_edad2_h)
+  
+}
 
-# - Calculo intervalos de confianza 
+edad2_h(GEIH,1:nrow(GEIH))
 
-intervalo_m <- quantile(boot_m$t, c(0.025, 0.975))
-intervalo_m
+boot_edad2_h <- boot(GEIH, edad2_h, R = 1000)
+boot_edad2_h
+coef_ed2_hombre <- boot_edad2_h$t0
+se_ed2_hombre <- apply(boot_edad2_h$t,2,sd)
+###############################################################################
+###############################################################################
+# Crear un dataframe con las x y las y
 
-ggplot() +
-  geom_line(aes(x=GEIH$edad,y=predict(mod3, newdata = GEIH))) +
-  geom_vline(xintercept = 43, color = "dark green") +
-  geom_errorbar(aes(x= GEIH$edad, ymin = GEIH$low, ymax = GEIH$up)) +
-  theme_minimal() +
-  labs(x = "Edad", y = "Logaritmo del Salario")
+x <- seq(18, 90, length.out = 100)
 
+
+y_m <- 12.33 + coef_ed_mujer * x + coef_ed2_mujer * x^2
+y_m_i <- 12.19 + (coef_ed_mujer-1.96*se_ed_mujer) * x + (coef_ed2_mujer-1.96*se_ed2_mujer) * x^2
+y_m_s <- 12.47 + (coef_ed_mujer+1.96*se_ed_mujer) * x + (coef_ed2_mujer+1.96*se_ed2_mujer) * x^2
+
+
+y_h <- coef_ed_hombre * x + coef_ed2_hombre * x^2
+y_h_i <- (coef_ed_hombre-1.96*se_ed_hombre) * x + (coef_ed2_hombre-1.96*se_ed2_hombre) * x^2
+y_h_s <- (coef_ed_hombre+1.96*se_ed_hombre) * x + (coef_ed2_hombre+1.96*se_ed2_hombre) * x^2
+
+
+df <- data.frame(x, y_m, y_m_i, y_m_s,y_h,y_h_i,y_h_s)
+
+# Graficar la función
+
+  ggplot(df, aes(x = x, y = y_m)) +
+  geom_line(aes(color = "Estimado"), size = 1) +
+  geom_line(aes(x = x, y = y_m_i, color = "Límite inferior"), linetype = "dotted", size = 1) +
+  geom_line(aes(x = x, y = y_m_s, color = "Límite superior"), linetype = "dotted", size = 1) +
+  scale_color_manual(name = "", values = c("Estimado" = "blue", "Límite inferior" = "red", "Límite superior" = "red")) +
+  labs(x = "Edad", y = "Log(Salario)") +
+  theme_classic() +
+  scale_x_continuous(limits = c(18, 90)) +
+  geom_vline(xintercept = 45, linetype = "dotted") +
+  theme(legend.position = "bottom")
+  
+  ggplot(df, aes(x = x, y = y_h)) +
+    geom_line(aes(color = "Estimado"), size = 1) +
+    geom_line(aes(x = x, y = y_h_i, color = "Límite inferior"), linetype = "dotted", size = 1) +
+    geom_line(aes(x = x, y = y_h_s, color = "Límite superior"), linetype = "dotted", size = 1) +
+    scale_color_manual(name = "", values = c("Estimado" = "blue", "Límite inferior" = "red", "Límite superior" = "red")) +
+    labs(x = "Edad", y = "Log(Salario)") +
+    theme_classic() +
+    scale_x_continuous(limits = c(18, 90)) +
+    geom_vline(xintercept = 49, linetype = "dotted") +
+    theme(legend.position = "bottom")
 
 

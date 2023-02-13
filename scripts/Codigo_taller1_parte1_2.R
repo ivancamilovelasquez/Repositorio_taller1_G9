@@ -244,4 +244,4 @@ grafico <- ggplot(GEIH, aes(x = salario_mensual, fill = genero)) +
         axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1),
         legend.position = "top") 
 
-
+#

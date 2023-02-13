@@ -268,3 +268,4 @@ for (i in 11:12) {
   MSE_mod_punto5[i] <- with(test, mean((log_salario_m-prediction)^2))
 }
 MSE_mod_punto5
+#

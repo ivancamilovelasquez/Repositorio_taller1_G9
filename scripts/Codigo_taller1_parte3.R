@@ -61,3 +61,4 @@ p3 <- ggplot(df, aes(x = x, y = y)) +
 
 
 ggsave(p3, filename = "C:/Users/andre/OneDrive/Documentos/punto3.png", height = 5, width = 6)
+#
